@@ -1,0 +1,242 @@
+= (My) Best Commits of the year 2015
+
+: author
+  中田伸悦
+
+: institution
+  Heroku inc.
+
+: theme
+  lightning-rabbit
+
+: allotted-time
+   5m
+
+= Best Commits
+
+今年((*個人的に*))印象に残ったコミット
+
+  # image
+  # src = github-20151031.png
+  # relative_width = 60
+
+= いわゆる\n自画自賛
+
+= 第3位
+
+= r52214
+
+: Safe navigation operator
+
+    * compile.c (iseq_peephole_optimize): peephole optimization for (({branchnil})) jumps.
+    * compile.c (iseq_compile_each): generate safe navigation operator code.
+      (('wait'))
+
+= r52214
+
+: Safe navigation operator
+
+    * insns.def (branchnil): new opcode to pop the tos and branch if it is (({nil})).
+    * parse.y (NEW_QCALL, call_op, parser_yylex): parse token '((*(({.?}))*))'.
+      (('wait'))
+
+= Before
+
+この長い式を……
+
+  # coderay ruby
+  u = User.find(id)
+  if u && u.profile && u.profile.thumbnails &&
+     u.profiles.thumbnails.large
+     ...
+  end
+
+= After
+
+こうじゃ
+
+  # coderay ruby
+  u = User.find(id)
+  if u.?profiles.?thumbnails.?large
+     ...
+  end
+
+(('wait'))
+Active Supportの(({try!}))と似た機能
+
+(('wait'))しかし……
+= 一昨日\n変わりました
+
+= Latest
+
+  # coderay ruby
+  u = User.find(id)
+  if u&.profiles&.thumbnails&.large
+     ...
+  end
+
+(('.?'))から(('&.'))に
+
+= 第2位
+
+= r51989\n:\nr52138
+
+= r51989
+
+: vm_args.c: optimize symbol block passing
+
+    * vm_args.c (vm_caller_setup_arg_block): bypass (({Symbol#to_proc})) call to optimize symbol block passing.
+
+= r52138
+
+: vm_args.c: symbol proc
+
+    * vm_args.c (vm_caller_setup_arg_block): store symbols instead of ifuncs.
+
+= Symbol block passing
+
+  # coderay ruby
+  [1, 2, 3].map(&:to_s)
+
+(('wait'))
+　　　　　　　||
+
+  # coderay ruby
+  [1, 2, 3].map{|i|i.to_s}
+
+= Before
+
+* 裏で(({Proc}))オブジェクトを作っている
+* (({Proc}))オブジェクトは環境を保存する
+  (('wait'))
+  * 環境の複製・保存が結構重い
+* しかしSymbol procでは環境は不要
+  (('wait'))
+
+= After
+
+* (({&symbol}))ではSymbolだけを保存
+* (({yield}))するときにそのSymbolでメソッドを呼ぶ
+  (('wait'))
+
+(('wait'))
+すると……
+
+= Symbol block passing
+
+  # image
+  # src = symbol_proc.png
+  # relative_width = 90
+
+* (('del:通常'))以前の三倍
+  (('wait'))
+
+= 第1位
+
+= r50412
+
+= r50412
+
+: dln.c: check incompatible libruby
+
+    * dln.c (dln_load): check if a different libruby is loaded by the 
+      extension library, and then bail out to get rid of very frequently 
+      reported stale bug reports.
+
+= Incompatible libruby Problem
+
+* 内部にオブジェクト管理領域
+* 別のrubyにリンクされている拡張ライブラリをロードすると…
+  (('wait'))
+
+= Before
+
+  $ ruby2.0 -r/usr/lib/ruby/2.0.0/universal-darwin15/etc -ep
+  /usr/lib/ruby/2.0.0/universal-darwin15/etc.bundle: [BUG] Segmentation fault
+  ruby 2.0.0p647 (2015-08-18 revision 51631) [universal.x86_64-darwin15.0.0]
+
+  -- Crash Report log information --------------------------------------------
+     See Crash Report log file under the one of following:
+       * ~/Library/Logs/CrashReporter
+       * /Library/Logs/CrashReporter
+       * ~/Library/Logs/DiagnosticReports
+       * /Library/Logs/DiagnosticReports
+     the more detail of.
+  :
+  :
+  [NOTE]
+  You may have encountered a bug in the Ruby interpreter or extension libraries.
+  Bug reports are welcome.
+  Don't forget to include the above Crash Report log file.
+  For details: http://www.ruby-lang.org/bugreport.html
+
+  Abort trap: 6
+
+= Abort
+
+* You may have encountered a ((*bug in the Ruby interpreter*)) or extension libraries.\n
+  ((*Bug reports are welcome*)).
+
+* Ruby自身か拡張ライブラリのバグだよ!\n
+  バグレポート歓迎!!
+  (('wait'))
+
+= Incompatible libruby Problem
+
+: dln.c: check incompatible libruby
+
+    * dln.c (dln_load): check if a different libruby is loaded by the 
+      extension library, and then bail out to get rid of ((*very frequently*)) 
+      reported stale bug reports.
+
+= ((*very frequently*))
+
+  * ない月がない
+    * ときどき固まってくる
+  * 一回のやり取りで終わらない
+    * だんだんツボがわかってきて一回ですむように…
+    (('wait'))
+
+= ((*welcome*))にも程がある
+
+= お互いに\n((*時間のムダ*))
+
+= After
+
+* Linux
+
+    $ ruby --disable=gems -v -r /tmp/etc.so -ep
+    ruby 2.3.0dev (2015-11-06 trunk 52467) [x86_64-linux]
+    -e:1:in `require': incompatible library version - /tmp/etc.so (LoadError)
+
+* OS X
+
+    $ ruby --disable=gems -v -r/tmp/etc -ep
+    ruby 2.3.0dev (2015-11-06 trunk 52467) [universal.x86_64-darwin15]
+    -e:1:in `require': incompatible library version - /tmp/etc.bundle (fatal)
+
+= 仕組み
+
+    # coderay C
+    void *ex = dlsym(handle, "ruby_xmalloc");
+    if (ex && ex != ruby_xmalloc) {
+        dlclose(handle);
+        error = "incompatible library version";
+        goto failed;
+    }
+
+(('wait'))
+なんども同じバグレポートが繰り返されたおかげで、プログラム的に判断する手段が見いだされた
+
+== 仕組み
+
+内部の管理領域と拡張ライブラリから見える管理領域が一致していないのなら、
+それにアクセスする関数も一致していないはず。
+
+= 本末転倒
+
+= おまけ
+
+  # image
+  # src = segv.png
+  # relative_width = 90
