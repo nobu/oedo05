@@ -77,6 +77,8 @@ Active Supportの(({try!}))と似た機能
 
 (('.?'))から(('&.'))に
 
+= ボッチ演算子
+
 = 第2位
 
 = r51989\n:\nr52138
@@ -125,7 +127,7 @@ Active Supportの(({try!}))と似た機能
 = Symbol block passing
 
   # image
-  # src = symbol_proc.png
+  # src = symbol_proc.svg
   # relative_width = 90
 
 * (('del:通常'))以前の三倍
@@ -233,7 +235,9 @@ Active Supportの(({try!}))と似た機能
 内部の管理領域と拡張ライブラリから見える管理領域が一致していないのなら、
 それにアクセスする関数も一致していないはず。
 
-= 本末転倒
+= ((*ムダ*))じゃなかった!
+
+= Bug reports are welcome.
 
 = おまけ
 
